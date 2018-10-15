@@ -48,7 +48,10 @@ public class MainApp {
         LOGGER.info("Mongo routers: {}", mongRouters);
         List<String> routers = Arrays.asList(mongRouters.split(","));
         return new MongoClient(routers.stream()
-                .map(router -> new ServerAddress(router, 27017)).collect(Collectors.toList()));
+                .map(router -> {
+                    String[] uri = router.split(":");
+                    return new ServerAddress(uri[0], Integer.valueOf(uri[1]));
+                }).collect(Collectors.toList()));
     }
 
 }

@@ -19,7 +19,7 @@ public class MyRouteBuilder extends RouteBuilder {
     public void configure() {
         Properties props = MainApp.props.getInitialProperties();
         String kafkaUri =
-                String.format("kafka:%s?brokers=%s&clientId=camel-kafka2mongodb&consumersCount=%s&groupId=%s&seekTo=%s",
+                String.format("kafka:%s?brokers=%s&consumersCount=%s&groupId=%s&seekTo=%s",
                         props.getProperty("kafka.topic"), props.getProperty("kafka.brokers"),
                         props.getProperty("kafka.consumersCount"), props.getProperty("kafka.groupId"),
                         props.getProperty("kafka.seekTo"));
@@ -29,9 +29,11 @@ public class MyRouteBuilder extends RouteBuilder {
                         props.getProperty("mongo.db"),
                         props.getProperty("mongo.collection"));
 
+        LOGGER.info("Kafka Uri: {}", kafkaUri);
+        LOGGER.info("Mongo Uri: {}", mongoUri);
+
         from(kafkaUri)
-                //from("kafka:test?brokers=172.18.0.1:9092&consumersCount=2&groupId=kafka2mongodb&autoOffsetReset=earliest&seekTo=beginning")
-                .to("log:com.eniro.kafka2mongo?level=INFO&showHeaders=true")
+                .to("log:com.eniro.kafka2mongo?level=DEBUG&showHeaders=true")
                 .process(
                         exchange -> {
                             String messageKey = "";
@@ -51,13 +53,12 @@ public class MyRouteBuilder extends RouteBuilder {
 
                                 int flag = processedMessages.incrementAndGet();
                                 if (flag % 100 == 0)
-                                    LOGGER.info("Progress: {} messages processed by thread {}, current offset = {}", flag, Thread.currentThread().getId(), offset);
+                                    LOGGER.info("Progress: {} messages processed by thread {}, current object: {}", flag, Thread.currentThread().getId(), dbObj.toJson());
 
                                 exchange.getOut().setBody(dbObj);
                             }
                         })
                 .to(mongoUri);
-        //.to("mongodb:mongoBean?database=genio&collection=genioProfileStreams&operation=insert");
     }
 
 }
