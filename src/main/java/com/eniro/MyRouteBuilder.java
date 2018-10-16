@@ -52,7 +52,7 @@ public class MyRouteBuilder extends RouteBuilder {
                                 dbObj.append("offset", offset);
 
                                 int flag = processedMessages.incrementAndGet();
-                                if (flag % 100 == 0)
+                                if (flag % 10000 == 0)
                                     LOGGER.info("Progress: {} messages processed by thread {}, current object: {}", flag, Thread.currentThread().getId(), dbObj.toJson());
 
                                 exchange.getOut().setBody(dbObj);
